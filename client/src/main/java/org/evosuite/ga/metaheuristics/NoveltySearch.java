@@ -1,16 +1,21 @@
 package org.evosuite.ga.metaheuristics;
 
 import org.evosuite.Properties;
-import org.evosuite.ga.*;
+import org.evosuite.ga.Chromosome;
+import org.evosuite.ga.ChromosomeFactory;
+import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.ga.NoveltyFunction;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-public class NoveltySearch<T extends Chromosome> extends GeneticAlgorithm<T>  {
+public class NoveltySearch<T extends Chromosome> extends GeneticAlgorithm<T> {
 
     private final static Logger logger = LoggerFactory.getLogger(NoveltySearch.class);
+
+    private List<T> novelArchive = new ArrayList<T>();
 
     private NoveltyFunction<T> noveltyFunction;
 
@@ -34,7 +39,15 @@ public class NoveltySearch<T extends Chromosome> extends GeneticAlgorithm<T>  {
         Collections.sort(population, Collections.reverseOrder(new Comparator<T>() {
             @Override
             public int compare(Chromosome c1, Chromosome c2) {
-                return Double.compare(noveltyMap.get(c1), noveltyMap.get(c2));
+                if((noveltyMap.get(c1) != null) && (noveltyMap.get(c2) != null)) {
+
+                    return Double.compare(noveltyMap.get(c1), noveltyMap.get(c2));
+                }
+                else{
+                    logger.warn("in null scenarios : c1 "+ c1+ " : c2 : "+c2);
+                    return 0;
+                }
+
             }
         }));
     }
@@ -44,6 +57,10 @@ public class NoveltySearch<T extends Chromosome> extends GeneticAlgorithm<T>  {
      */
     protected void calculateNoveltyAndSortPopulation() {
         logger.debug("Calculating novelty for " + population.size() + " individuals");
+
+        // TODO: Needs to be moved to Properties.java
+        // value needs to be fine tuned.
+        double noveltyThreshold = 0.5;
 
         Iterator<T> iterator = population.iterator();
         Map<T, Double> noveltyMap = new LinkedHashMap<>();
@@ -55,11 +72,21 @@ public class NoveltySearch<T extends Chromosome> extends GeneticAlgorithm<T>  {
                     iterator.remove();
             } else {
                 // TODO: This needs to take the archive into account
-                double novelty = noveltyFunction.getNovelty(c, population);
+
+                double novelty = noveltyFunction.getNovelty(c, population, novelArchive);
+                // In theory, the threshold can turn dynamic depending on how many individuals pass or don't pass the initial threshold.
+                if(novelty >= noveltyThreshold){
+                    novelArchive.add(c);
+                    //adding in the novel archive
+                    // TODO: I think adding the novel individuals in novel archive is sufficient
+                }
                 noveltyMap.put(c, novelty);
             }
         }
-
+        // would it be nicer if we add a field for novelty score in 'Chromosome class' so that we could avoid the below novelty map?
+        sortPopulation(novelArchive,noveltyMap);
+        // We may need to pick 'k' individuals from the novelArchive if we only limit 'k' nearest neighbours from the archive to be considered.
+        logger.warn("Novelty Archive size : "+novelArchive.size());
         // Sort population
         sortPopulation(population, noveltyMap);
     }

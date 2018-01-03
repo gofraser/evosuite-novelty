@@ -51,6 +51,11 @@ public class NoveltyStrategy extends TestGenerationStrategy {
 
         NoveltyFitnessEvaluationListener listener = new NoveltyFitnessEvaluationListener(fitnessFunctions);
         algorithm.addListener(listener);
+
+        // What's the search target
+        //TODO: To be reviewed, We still need a fitness function to be added?
+        //algorithm.addFitnessFunctions((List) fitnessFunctions);
+
         algorithm.setNoveltyFunction(new BranchNoveltyFunction());
 
         // if (Properties.SHOW_PROGRESS && !logger.isInfoEnabled())

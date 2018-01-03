@@ -130,7 +130,8 @@ public class StatisticsListener implements SearchListener {
 	@Override
 	public void searchStarted(GeneticAlgorithm<?> algorithm) {
 		done = false;
-		if(algorithm.getFitnessFunction().isMaximizationFunction()) {
+		//TODO : This is just to make the algorithm work and let it generate tests. Need to be fixed on priority.
+		if(false && algorithm.getFitnessFunction().isMaximizationFunction()) {
 			bestFitness = 0.0;
 			minimizing = false;
 		} else {
