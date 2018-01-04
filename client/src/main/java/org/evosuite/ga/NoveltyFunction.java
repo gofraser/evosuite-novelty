@@ -28,7 +28,7 @@ public abstract class NoveltyFunction<T extends Chromosome> {
             distance += d;
         }
 
-        distance /= (population.size() - 1);
+        distance /= (population.size() - 1) + (novelArchive.isEmpty() == true ? 0 : novelArchive.size()-1);
         return distance;
     }
 }

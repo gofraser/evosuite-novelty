@@ -39,15 +39,8 @@ public class NoveltySearch<T extends Chromosome> extends GeneticAlgorithm<T> {
         Collections.sort(population, Collections.reverseOrder(new Comparator<T>() {
             @Override
             public int compare(Chromosome c1, Chromosome c2) {
-                if((noveltyMap.get(c1) != null) && (noveltyMap.get(c2) != null)) {
-
-                    return Double.compare(noveltyMap.get(c1), noveltyMap.get(c2));
-                }
-                else{
-                    logger.warn("in null scenarios : c1 "+ c1+ " : c2 : "+c2);
-                    return 0;
-                }
-
+                assert ((noveltyMap.get(c1) != null) && (noveltyMap.get(c2) != null)) : "No corresponding values in noveltyMap.";
+                return Double.compare(noveltyMap.get(c1), noveltyMap.get(c2));
             }
         }));
     }
@@ -67,15 +60,10 @@ public class NoveltySearch<T extends Chromosome> extends GeneticAlgorithm<T> {
 
         while (iterator.hasNext()) {
             T c = iterator.next();
-            if (isFinished()) {
-                if (c.isChanged())
-                    iterator.remove();
-            } else {
-                // TODO: This needs to take the archive into account
-
+            if (!isFinished()) {
                 double novelty = noveltyFunction.getNovelty(c, population, novelArchive);
                 // In theory, the threshold can turn dynamic depending on how many individuals pass or don't pass the initial threshold.
-                if(novelty >= noveltyThreshold){
+                if (novelty >= noveltyThreshold) {
                     novelArchive.add(c);
                     //adding in the novel archive
                     // TODO: I think adding the novel individuals in novel archive is sufficient
