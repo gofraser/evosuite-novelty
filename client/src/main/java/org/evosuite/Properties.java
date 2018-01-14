@@ -198,6 +198,9 @@ public class Properties {
     @IntValue(min = 1, max = 32767) // String literals may not be longer than 32767
     public static int MAX_STRING = 1000;
 
+	@Parameter(key = "p_min", group = "Test Creation", description = "Novelty Threshold")
+	@DoubleValue(min = 0.0, max = 32767)
+	public static double P_MIN = 0.0;
 
 	@Parameter(key = "epsilon", group = "Test Creation", description = "Epsilon for floats in local search")
 	@Deprecated

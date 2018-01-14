@@ -53,7 +53,7 @@ public class NoveltySearch<T extends Chromosome> extends GeneticAlgorithm<T> {
 
         // TODO: Needs to be moved to Properties.java
         // value needs to be fine tuned.
-        double noveltyThreshold = 0.5;
+        int evaluations = 0;
 
         Iterator<T> iterator = population.iterator();
         Map<T, Double> noveltyMap = new LinkedHashMap<>();
@@ -63,13 +63,23 @@ public class NoveltySearch<T extends Chromosome> extends GeneticAlgorithm<T> {
             if (!isFinished()) {
                 double novelty = noveltyFunction.getNovelty(c, population, novelArchive);
                 // In theory, the threshold can turn dynamic depending on how many individuals pass or don't pass the initial threshold.
-                if (novelty >= noveltyThreshold) {
+                if (novelty >= Properties.P_MIN) {
                     novelArchive.add(c);
+                    evaluations++;
                     //adding in the novel archive
                     // TODO: I think adding the novel individuals in novel archive is sufficient
                 }
                 noveltyMap.put(c, novelty);
             }
+        }
+        // adjusting the 'noveltyThreshold' threshold dynamically
+        if(evaluations > 25 ){
+            Properties.P_MIN += 0.25 * Properties.P_MIN;
+        }
+        if(evaluations < 10){
+            Properties.P_MIN -= 0.15 * Properties.P_MIN;
+            if(Double.compare(Properties.P_MIN,0.0) < 0)
+                Properties.P_MIN = 0.0;
         }
         // would it be nicer if we add a field for novelty score in 'Chromosome class' so that we could avoid the below novelty map?
         sortPopulation(novelArchive,noveltyMap);
