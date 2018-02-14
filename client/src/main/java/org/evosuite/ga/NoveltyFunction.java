@@ -18,6 +18,7 @@ public abstract class NoveltyFunction<T extends Chromosome> {
                 continue;
 
             double d = getDistance(individual, other);
+            assert(d <= 1.0);
             distance += d;
         }
         for(T other : novelArchive) {
@@ -25,10 +26,11 @@ public abstract class NoveltyFunction<T extends Chromosome> {
                 continue;
 
             double d = getDistance(individual, other);
+            assert(d <= 1.0);
             distance += d;
         }
 
-        distance /= (population.size() - 1) + (novelArchive.isEmpty() == true ? 0 : novelArchive.size()-1);
+        distance /= (population.size() - 1) + (novelArchive.size());
         return distance;
     }
 }

@@ -150,9 +150,11 @@ public class PropertiesNoveltySearchFactory extends PropertiesSearchAlgorithmFac
         StoppingCondition stopping_condition = getStoppingCondition();
         ga.setStoppingCondition(stopping_condition);
         // ga.addListener(stopping_condition);
-        if (Properties.STOP_ZERO) {
-            ga.addStoppingCondition(new ZeroFitnessStoppingCondition());
-        }
+
+        // TODO: Currently fitness may be evaluated after the stopping condition is invoked, so we do not yet use it/.
+//        if (Properties.STOP_ZERO) {
+//            ga.addStoppingCondition(new ZeroFitnessStoppingCondition());
+//        }
 
         if (!(stopping_condition instanceof MaxTimeStoppingCondition)) {
             ga.addStoppingCondition(new GlobalTimeStoppingCondition());

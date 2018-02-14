@@ -15,7 +15,7 @@ public class NoveltySearch<T extends Chromosome> extends GeneticAlgorithm<T> {
 
     private final static Logger logger = LoggerFactory.getLogger(NoveltySearch.class);
 
-    private List<T> novelArchive = new ArrayList<T>();
+    private Collection<T> novelArchive = new LinkedHashSet<>();
 
     private NoveltyFunction<T> noveltyFunction;
 
@@ -34,7 +34,6 @@ public class NoveltySearch<T extends Chromosome> extends GeneticAlgorithm<T> {
      * Sort the population by novelty
      */
     protected void sortPopulation(List<T> population, Map<T, Double> noveltyMap) {
-        // TODO: Handle case when no novelty value is stored in map
         // TODO: Use lambdas
         Collections.sort(population, Collections.reverseOrder(new Comparator<T>() {
             @Override
@@ -49,42 +48,21 @@ public class NoveltySearch<T extends Chromosome> extends GeneticAlgorithm<T> {
      * Calculate fitness for all individuals
      */
     protected void calculateNoveltyAndSortPopulation() {
-        logger.debug("Calculating novelty for " + population.size() + " individuals");
+        logger.info("Calculating novelty for " + population.size() + " individuals");
 
-        // TODO: Needs to be moved to Properties.java
-        // value needs to be fine tuned.
-        int evaluations = 0;
-
-        Iterator<T> iterator = population.iterator();
         Map<T, Double> noveltyMap = new LinkedHashMap<>();
 
-        while (iterator.hasNext()) {
-            T c = iterator.next();
-            if (!isFinished()) {
-                double novelty = noveltyFunction.getNovelty(c, population, novelArchive);
-                // In theory, the threshold can turn dynamic depending on how many individuals pass or don't pass the initial threshold.
-                if (novelty >= Properties.P_MIN) {
-                    novelArchive.add(c);
-                    evaluations++;
-                    //adding in the novel archive
-                    // TODO: I think adding the novel individuals in novel archive is sufficient
-                }
-                noveltyMap.put(c, novelty);
+        for(T individual : population) {
+            double novelty = noveltyFunction.getNovelty(individual, population, novelArchive);
+            // In theory, the threshold can turn dynamic depending on how many individuals pass or don't pass the initial threshold.
+            if (novelty >= Properties.NOVELTY_THRESHOLD) {
+                novelArchive.add(individual);
+                //adding in the novel archive
             }
+            noveltyMap.put(individual, novelty);
         }
-        // adjusting the 'noveltyThreshold' threshold dynamically
-        if(evaluations > 25 ){
-            Properties.P_MIN += 0.25 * Properties.P_MIN;
-        }
-        if(evaluations < 10){
-            Properties.P_MIN -= 0.15 * Properties.P_MIN;
-            if(Double.compare(Properties.P_MIN,0.0) < 0)
-                Properties.P_MIN = 0.0;
-        }
-        // would it be nicer if we add a field for novelty score in 'Chromosome class' so that we could avoid the below novelty map?
-        sortPopulation(novelArchive,noveltyMap);
         // We may need to pick 'k' individuals from the novelArchive if we only limit 'k' nearest neighbours from the archive to be considered.
-        logger.warn("Novelty Archive size : "+novelArchive.size());
+        logger.info("Novelty Archive size : "+novelArchive.size());
         // Sort population
         sortPopulation(population, noveltyMap);
     }
@@ -106,6 +84,7 @@ public class NoveltySearch<T extends Chromosome> extends GeneticAlgorithm<T> {
     protected void evolve() {
 
         List<T> newGeneration = new ArrayList<T>();
+        logger.info("Populating next generation");
 
         while (!isNextPopulationFull(newGeneration)) {
             T parent1 = selectionFunction.select(population);
@@ -159,10 +138,10 @@ public class NoveltySearch<T extends Chromosome> extends GeneticAlgorithm<T> {
         if (population.isEmpty())
             initializePopulation();
 
-        logger.warn("Starting evolution of novelty search algorithm");
+        logger.info("Starting evolution of novelty search algorithm");
 
         while (!isFinished()) {
-            logger.warn("Current population: " + getAge() + "/" + Properties.SEARCH_BUDGET);
+            logger.info("Current population: " + getAge() + "/" + Properties.SEARCH_BUDGET);
             //logger.info("Best fitness: " + getBestIndividual().getFitness());
 
             evolve();
@@ -172,6 +151,7 @@ public class NoveltySearch<T extends Chromosome> extends GeneticAlgorithm<T> {
 
             this.notifyIteration();
         }
+        logger.info("Novelty search finished");
 
         updateBestIndividualFromArchive();
         notifySearchFinished();

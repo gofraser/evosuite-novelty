@@ -4,7 +4,6 @@ com.apple.
 com_cenqua_clover.
 com.cenqua.
 com.gzoltar.
-com.sun.
 com.vladium.emma.
 com.yourkit.
 corina.cross.Single
@@ -15,6 +14,8 @@ de.unisl.cs.st.bugex.
 de.unisb.cs.st.specmate.
 dk.brics.automaton.
 lombok.
+com.sun.
+org.relaxng.datatype.
 java.
 javax.
 javafx.

@@ -30,7 +30,7 @@ public class BranchNoveltyFunction extends NoveltyFunction<TestChromosome> {
             }
         }
         branchlessMethods.addAll(BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranchlessMethods());
-        logger.warn("Number of branches: "+branches.size()+" branches and "+branchlessMethods.size() +" branchless methods");
+        logger.info("Number of branches: "+branches.size()+" branches and "+branchlessMethods.size() +" branchless methods");
     }
 
     private ExecutionResult runTest(TestCase test) {
@@ -48,6 +48,10 @@ public class BranchNoveltyFunction extends NoveltyFunction<TestChromosome> {
     }
 
 
+    private double normalize(double x) {
+        return x/(1.0+x);
+    }
+
     @Override
     public double getDistance(TestChromosome individual1, TestChromosome individual2) {
         ExecutionResult result1 = getExecutionResult(individual1);
@@ -63,9 +67,18 @@ public class BranchNoveltyFunction extends NoveltyFunction<TestChromosome> {
                 double distance1 = trace1.getTrueDistance(branch);
                 double distance2 = trace2.getTrueDistance(branch);
 
-                difference += Math.abs(distance1 - distance2);
+                difference += normalize(Math.abs(distance1 - distance2));
 
             } else if(trace1.hasTrueDistance(branch) || trace2.hasTrueDistance(branch)) {
+                difference += 1.0;
+            }
+            if(trace1.hasFalseDistance(branch) && trace2.hasFalseDistance(branch)) {
+                double distance1 = trace1.getFalseDistance(branch);
+                double distance2 = trace2.getFalseDistance(branch);
+
+                difference += normalize(Math.abs(distance1 - distance2));
+
+            } else if(trace1.hasFalseDistance(branch) || trace2.hasFalseDistance(branch)) {
                 difference += 1.0;
             }
         }
@@ -78,8 +91,10 @@ public class BranchNoveltyFunction extends NoveltyFunction<TestChromosome> {
             }
         }
 
-        difference /= (branches.size() + branchlessMethods.size());
+        difference /= (2.0*branches.size() + branchlessMethods.size());
 
+        assert(difference >= 0.0);
+        assert(difference <= 1.0);
         return difference;
     }
 
