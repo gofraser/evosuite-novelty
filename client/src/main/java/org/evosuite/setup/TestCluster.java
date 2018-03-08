@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -30,8 +30,8 @@ import java.util.stream.Collectors;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
-import org.evosuite.coverage.archive.TestsArchive;
 import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.ga.archive.Archive;
 import org.evosuite.junit.CoverageAnalysis;
 import org.evosuite.runtime.util.AtMostOnceLogger;
 import org.evosuite.runtime.util.Inputs;
@@ -483,11 +483,15 @@ public class TestCluster {
 							logger.debug("5. ERROR", e);
 						}
 					}
-				} else {
-					logger.debug("4. generator {} CANNOT be instantiated to {}", generatorClazz, clazz);
-					for(GenericClass boundClass : generatorClazz.getGenericBounds()) {
-						CastClassManager.getInstance().addCastClass(boundClass, 0);
-					}
+					// FIXME:
+					// There are cases where this might lead to relevant cast classes not being included
+					// but in manycases it will pull in large numbers of useless dependencies.
+					// Commented out for now, until we find a case where the problem can be properly studied.
+//				} else {
+//					logger.debug("4. generator {} CANNOT be instantiated to {}", generatorClazz, clazz);
+//					for(GenericClass boundClass : generatorClazz.getGenericBounds()) {
+//						CastClassManager.getInstance().addCastClass(boundClass, 0);
+//					}
 				}
 			}
 			logger.debug("Found generators for {}: {}",clazz, targetGenerators.size());
@@ -1258,7 +1262,7 @@ public class TestCluster {
 		Map<String, Integer> mapMethodToGoals = new LinkedHashMap<>();
 		for(String methodName : mapCallToName.values()) {
 			// MethodKey is class+method+desc
-			mapMethodToGoals.put(methodName, TestsArchive.instance.getNumRemainingGoals(methodName));
+			mapMethodToGoals.put(methodName, Archive.getArchiveInstance().getNumOfRemainingTargets(methodName));
 		}
 		return testMethods.stream().sorted(Comparator.comparingInt(item -> mapMethodToGoals.get(mapCallToName.get(item))).reversed()).collect(Collectors.toList());
 	}

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -135,6 +135,10 @@ public class TestChromosome extends ExecutableChromosome {
 			}
 		}
 		// c.mutationHistory.set(mutationHistory);
+		c.setNumberOfMutations(this.getNumberOfMutations());
+		c.setNumberOfEvaluations(this.getNumberOfEvaluations());
+		c.setKineticEnergy(getKineticEnergy());
+		c.setNumCollisions(getNumCollisions());
 
 		return c;
 	}
@@ -181,8 +185,13 @@ public class TestChromosome extends ExecutableChromosome {
 
 		for (int i = position2; i < other.size(); i++) {
 			GenericAccessibleObject<?> accessibleObject = otherChromosome.test.getStatement(i).getAccessibleObject();
-			if(accessibleObject != null && accessibleObject.getDeclaringClass().equals(Injector.class))
-				continue;
+			if(accessibleObject != null) {
+				if (accessibleObject.getDeclaringClass().equals(Injector.class))
+					continue;
+				if(!ConstraintVerifier.isValidPositionForInsertion(accessibleObject, offspring.test, offspring.test.size())) {
+					continue;
+				}
+			}
 			testFactory.appendStatement(offspring.test,
 					otherChromosome.test.getStatement(i));
 		}
@@ -333,6 +342,7 @@ public class TestChromosome extends ExecutableChromosome {
 		}
 
 		if (changed) {
+			this.increaseNumberOfMutations();
 			setChanged(true);
 			test.clearCoveredGoals();
 		}

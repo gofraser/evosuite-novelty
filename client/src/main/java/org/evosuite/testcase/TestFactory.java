@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -2195,7 +2195,7 @@ public class TestFactory {
 					Type target = m.getOwnerType();
 
 					if (!test.hasObject(target, position)) {
-						callee = createObject(test, target, position, 0, null, true, true,true); //no FM for SUT
+						callee = createObject(test, target, position, 0, null, false, false,true); //no FM for SUT
 						position += test.size() - previousLength;
 						previousLength = test.size();
 					} else {

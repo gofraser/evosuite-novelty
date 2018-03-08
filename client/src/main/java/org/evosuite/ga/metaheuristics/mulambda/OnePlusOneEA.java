@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -17,21 +17,26 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package com.examples.with.different.packagename;
+package org.evosuite.ga.metaheuristics.mulambda;
 
-public class FlagExample5 {
+import org.evosuite.ga.Chromosome;
+import org.evosuite.ga.ChromosomeFactory;
 
-	public boolean testMe(int x, int y) {
-		boolean flag = false;
-		if(x == 34235) {
-			if(x == y || y == -20362)
-				flag = true;
-		}
-		return flag;
-	}
+/**
+ * (1+1)EA
+ *
+ * @author Gordon Fraser
+ */
+public class OnePlusOneEA<T extends Chromosome> extends MuPlusLambdaEA<T> {
 
-	public void flagProblem(int x, int y) {
-		if(testMe(x, y))
-			System.out.println("Target");
+	private static final long serialVersionUID = 5229089847512798127L;
+
+	/**
+	 * Constructor
+	 *
+	 * @param factory a {@link org.evosuite.ga.ChromosomeFactory} object.
+	 */
+	public OnePlusOneEA(ChromosomeFactory<T> factory) {
+		super(factory, 1, 1);
 	}
 }

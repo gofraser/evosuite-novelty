@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -17,15 +17,30 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package com.examples.with.different.packagename;
+package org.evosuite.ga.metaheuristics.mosa.structural;
 
-public class FlagExample6 {
+import org.evosuite.ga.FitnessFunction;
+import org.jgrapht.graph.DefaultEdge;
 
-	public void flagProblem(int x, int y) {
-		FlagExample5 f = new FlagExample5();
+/**
+ * 
+ * 
+ * @author Annibale Panichella
+ */
+public class DependencyEdge extends DefaultEdge{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	//private static final Logger logger = LoggerFactory.getLogger(BranchFitnessGraph.class);
 
-		if(f.testMe(x, y))
-			System.out.println("Target");
+	public FitnessFunction<?> getSource(){
+		return (FitnessFunction<?>) super.getSource();
+	}
+	
+	public FitnessFunction<?> getTarget(){
+		return (FitnessFunction<?>) super.getTarget();
 	}
 
 }

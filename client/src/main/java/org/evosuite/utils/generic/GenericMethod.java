@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -410,6 +410,18 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 			LoggingUtils.getEvoLogger().info("Class not found - keeping old class loader ",e);
 		}
 	}
+
+	@Override
+	public boolean isPublic() { return Modifier.isPublic(method.getModifiers()); }
+
+	@Override
+	public boolean isPrivate() { return Modifier.isPrivate(method.getModifiers()); }
+
+	@Override
+	public boolean isProtected() { return Modifier.isProtected(method.getModifiers()); }
+
+	@Override
+	public boolean isDefault() { return !isPublic() && !isPrivate() && !isProtected(); }
 
 	@Override
 	public int hashCode() {

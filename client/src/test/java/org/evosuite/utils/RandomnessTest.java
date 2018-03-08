@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -17,26 +17,27 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.ga.metaheuristics;
+package org.evosuite.utils;
 
-import org.evosuite.ga.Chromosome;
-import org.evosuite.ga.ChromosomeFactory;
+import static org.junit.Assert.assertTrue;
+import org.junit.Test;
 
 /**
- * (1+1)EA
- *
- * @author Gordon Fraser
+ * 
+ * @author José Campos
  */
-public class OnePlusOneEA<T extends Chromosome> extends MuPlusLambdaEA<T> {
+public class RandomnessTest {
 
-	private static final long serialVersionUID = 5229089847512798127L;
+	@Test
+	public void testNextDoubleWithMinMax() {
+		double min = 0.8;
+		double max = 0.9;
 
-	/**
-	 * Constructor
-	 *
-	 * @param factory a {@link org.evosuite.ga.ChromosomeFactory} object.
-	 */
-	public OnePlusOneEA(ChromosomeFactory<T> factory) {
-		super(factory, 1, 1);
+		for (int i = 0; i < 1_000_000; i++) {
+			double r = Randomness.nextDouble(min, max);
+			assertTrue(
+					"random double (" + r + ") value has to be in the range [" + min + ", " + max + "]",
+					(Double.compare(r, min) >= 0) && (Double.compare(r, max) <= 0));
+		}
 	}
 }

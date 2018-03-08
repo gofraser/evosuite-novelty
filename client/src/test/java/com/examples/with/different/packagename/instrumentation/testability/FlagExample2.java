@@ -1,4 +1,6 @@
 /**
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
  *
  * This file is part of EvoSuite.
  *
@@ -15,29 +17,16 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.ga.metaheuristics.mosa.comparators;
+package com.examples.with.different.packagename.instrumentation.testability;
 
-import java.io.Serializable;
-import java.util.Comparator;
+public class FlagExample2 {
 
-import org.evosuite.ga.Chromosome;
-
-/**
- * Sort a Collection of Chromosomes by Test Size
- * 
- * @author Annibale Panichella
- */
-public class TestSizeComparator<T extends Chromosome> implements Comparator<T>, Serializable {
-
-	private static final long serialVersionUID = -6576898111709166470L;
-
-	@Override
-	public int compare(T c1, T c2) {
-		if (c1.size() < c2.size())
-			return -1;
-		else if (c1.size() > c2.size())
-			return +1;
-		else 
-			return 0;
+	public boolean testMe(int x) {
+		boolean flag = x == 23482 || x == 1235;
+		if(flag) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 }

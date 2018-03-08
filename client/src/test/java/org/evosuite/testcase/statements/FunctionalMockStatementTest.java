@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -46,6 +46,7 @@ import org.evosuite.utils.generic.GenericMethod;
 import org.junit.After;
 import static org.junit.Assert.*;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import sun.misc.ClassLoaderUtil;
 
@@ -420,9 +421,16 @@ public class FunctionalMockStatementTest {
         //execute(tc);
     }
 
+    /*
+     * This test fails when Mockito is instrumented (it would pass if org.mockito. is excluded from instrumentation.
+     * However, in the packaged version, Mockito is shaded and thus isn't actually instrumented. I don't have a good
+     * solution to fix this test, hence I've marked it as ignored. (Gordon, 9.2.2018)
+     */
     @Test
     public void testPackageLevel_differentPackage_instrumentation_public()  throws Exception{
         TestCase tc = new DefaultTestCase();
+
+        RuntimeInstrumentation.setAvoidInstrumentingShadedClasses(true);
 
         ClassPathHandler.getInstance().changeTargetCPtoTheSameAsEvoSuite();
         InstrumentingClassLoader loader = new InstrumentingClassLoader();
@@ -434,6 +442,7 @@ public class FunctionalMockStatementTest {
         tc.addStatement(mockStmt);
         execute(tc);
     }
+
 
     @Test
     public void testLimit() throws Exception{

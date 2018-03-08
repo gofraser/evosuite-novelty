@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -45,6 +45,7 @@ import org.evosuite.utils.generic.GenericAccessibleObject;
 import org.evosuite.utils.generic.GenericClass;
 import org.mockito.MockSettings;
 import org.mockito.Mockito;
+import org.mockito.exceptions.misusing.InvalidUseOfMatchersException;
 import org.mockito.stubbing.OngoingStubbing;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -201,7 +202,7 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
                 !Modifier.isPublic(rawClass.getModifiers())) {
             return false;
         }
-
+        
         if (!InstrumentedClass.class.isAssignableFrom(rawClass) &&
                 Modifier.isFinal(rawClass.getModifiers())) {
             /*
@@ -263,7 +264,6 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
             return false;
         }
 
-
         return true;
     }
 
@@ -271,7 +271,6 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
 
         Class<?> rawClass = new GenericClass(type).getRawClass();
 		final Class<?> targetClass = Properties.getTargetClassAndDontInitialise();
-
 
         if (Properties.hasTargetClassBeenLoaded()
         		&& GenericClass.isAssignable(targetClass, rawClass)) {
@@ -672,9 +671,11 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
                                 logger.error("Invocation of mocked {}.{}() threw an exception. " +
                                         "This means the method was not mocked",targetClass.getName(), method.getName());
                                 throw e;
-                            } catch (IllegalArgumentException e){
+                            } catch (IllegalArgumentException | IllegalAccessError e){
+                                // FIXME: Happens for reasons I don't understand. By throwing a CodeUnderTestException EvoSuite
+                                // will just ignore that mocking statement and continue, instead of crashing
                                 logger.error("IAE on <"+method+"> when called with "+Arrays.toString(targetInputs));
-                                throw e;
+                                throw new CodeUnderTestException(e);
                             }
 
                             //when(...)
@@ -743,6 +744,11 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
                     } catch(java.lang.NoClassDefFoundError e) {
                         AtMostOnceLogger.error(logger, "Cannot use Mockito on "+targetClass+" due to failed class initialization: "+e.getMessage());
                         return; //or should throw an exception?
+                    } catch(IllegalAccessException | IllegalAccessError | InvalidUseOfMatchersException e) {
+                        // FIXME: Happens for reasons I don't understand. By throwing a CodeUnderTestException EvoSuite
+                        // will just ignore that mocking statement and continue, instead of crashing
+                        AtMostOnceLogger.error(logger, "Cannot use Mockito on "+targetClass+" due to IAE: "+e.getMessage());
+                        throw new CodeUnderTestException(e); //or should throw an exception?
                     } catch (Throwable t) {
                         AtMostOnceLogger.error(logger, "Failed to use Mockito on " + targetClass + ": " + t.getMessage());
                         throw new EvosuiteError(t);
@@ -835,6 +841,8 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
                             value = (short) ((Integer)value).intValue();
                         } else if(valuesClass.equals(Byte.class)){
                             value = (short) ((Byte)value).intValue();
+                        } else if(valuesClass.equals(Short.class)){
+                            value = (short) ((Short)value).intValue();
                         } else if(valuesClass.equals(Character.class)){
                             value = (short) ((Character)value).charValue();
                         } else if(valuesClass.equals(Long.class)){
@@ -845,8 +853,10 @@ public class FunctionalMockStatement extends EntityWithParametersStatement {
                     if(expectedType.equals(Byte.TYPE)) {
                         if(valuesClass.equals(Integer.class)){
                             value = (byte) ((Integer)value).intValue();
-                        } else if(valuesClass.equals(Byte.class)){
+                        } else if(valuesClass.equals(Short.class)){
                             value = (byte) ((Short)value).intValue();
+                        } else if(valuesClass.equals(Byte.class)){
+                            value = (byte) ((Byte)value).intValue();
                         } else if(valuesClass.equals(Character.class)){
                             value = (byte) ((Character)value).charValue();
                         } else if(valuesClass.equals(Long.class)){

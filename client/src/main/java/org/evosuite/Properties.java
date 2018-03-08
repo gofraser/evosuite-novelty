@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -303,7 +303,16 @@ public class Properties {
 	// ---------------------------------------------------------------
 	// Search algorithm
 	public enum Algorithm {
-		STANDARDGA, MONOTONICGA, ONEPLUSONEEA, MUPLUSLAMBDAEA, STEADYSTATEGA, RANDOM, NSGAII, MOSA, SPEA2, ONEPLUSLAMBDALAMBDAGA, BREEDERGA, CELLULARGA
+		// random
+		RANDOM_SEARCH,
+		// GAs
+		STANDARD_GA, MONOTONIC_GA, STEADY_STATE_GA, BREEDER_GA, CELLULAR_GA, STANDARD_CHEMICAL_REACTION,
+		// mu-lambda
+		ONE_PLUS_LAMBDA_LAMBDA_GA, ONE_PLUS_ONE_EA, MU_PLUS_LAMBDA_EA, MU_LAMBDA_EA,
+		// many-objective algorithms
+		MOSA, LIPS, MIO,
+		// multiple-objective optimisation algorithms
+		NSGAII, SPEA2
 	}
 
 	// MOSA PROPERTIES
@@ -317,7 +326,7 @@ public class Properties {
 	public static RankingType RANKING_TYPE = RankingType.PREFERENCE_SORTING;
 
 	@Parameter(key = "algorithm", group = "Search Algorithm", description = "Search algorithm")
-	public static Algorithm ALGORITHM = Algorithm.MONOTONICGA;
+	public static Algorithm ALGORITHM = Algorithm.MONOTONIC_GA;
 
 	/** Different models of neighbourhoods in the Cellular GA **/
 	public enum CGA_Models{
@@ -532,6 +541,23 @@ public class Properties {
 	@IntValue(min = 1, max = 100000)
 	public static int CHROMOSOME_LENGTH = 40;
 
+	@Parameter(key = "number_of_tests_per_target", group = "Search Algorithm", description = "Number of test cases for each target goal to keep in an archive")
+	public static int NUMBER_OF_TESTS_PER_TARGET = 10;
+
+	@Parameter(key = "p_random_test_or_from_archive", group = "Search Algorithm", description = "Probability [0,1] of sampling a new test at random or choose an existing one in an archive")
+	@DoubleValue(min = 0.0, max = 1.0)
+	public static double P_RANDOM_TEST_OR_FROM_ARCHIVE = 0.5;
+
+	@Parameter(key = "exploitation_starts_at_percent", group = "Search Algorithm", description = "Percentage [0,1] of search budget after which exploitation is activated")
+	@DoubleValue(min = 0.0, max = 1.0)
+	public static double EXPLOITATION_STARTS_AT_PERCENT = 0.5;
+
+	@Parameter(key = "max_num_mutations_before_giving_up", group = "Search Algorithm", description = "Maximum number of mutations allowed to be done on the same individual before sampling a new one")
+	public static int MAX_NUM_MUTATIONS_BEFORE_GIVING_UP = 10;
+
+	@Parameter(key = "max_num_fitness_evaluations_before_giving_up", group = "Search Algorithm", description = "Maximum number of fitness evaluations allowed to be done on the same individual before sampling a new one")
+	public static int MAX_NUM_FITNESS_EVALUATIONS_BEFORE_GIVING_UP = 10;
+
 	@Parameter(key = "population", group = "Search Algorithm", description = "Population size of genetic algorithm")
 	@IntValue(min = 1)
 	public static int POPULATION = 50;
@@ -613,10 +639,12 @@ public class Properties {
 	@Parameter(key = "mutation_probability_distribution", group = "Search Algorithm", description = "Mutation probability distribution")
 	public static MutationProbabilityDistribution MUTATION_PROBABILITY_DISTRIBUTION = MutationProbabilityDistribution.UNIFORM;
 
-	// TODO: Fix values
+	public enum SecondaryObjective {
+		AVG_LENGTH, MAX_LENGTH, TOTAL_LENGTH, SIZE, EXCEPTIONS, IBRANCH, RHO
+	}
+
 	@Parameter(key = "secondary_objectives", group = "Search Algorithm", description = "Secondary objective during search")
-	// @SetValue(values = { "maxlength", "maxsize", "avglength", "none" })
-	public static String SECONDARY_OBJECTIVE = "totallength";
+	public static SecondaryObjective[] SECONDARY_OBJECTIVE = new SecondaryObjective[] { SecondaryObjective.TOTAL_LENGTH };
 
 	@Parameter(key = "enable_secondary_objective_after", group = "Search Algorithm", description = "Activate the second secondary objective after a certain amount of search budget")
 	public static int ENABLE_SECONDARY_OBJECTIVE_AFTER = 0;
@@ -698,6 +726,26 @@ public class Properties {
 	@Parameter(key = "epson", group = "Experimental", description = "Epson")
 	@DoubleValue(min = 0.0, max = 1.0)
 	public static double EPSON = 0.01;
+
+	// ---------------------------------------------------------------
+	// Chemical Reaction Optimization Parameters
+
+	@Parameter(key = "kinetic_energy_loss_rate", group = "Chemical Reaction Optimization", description = "Rate at which molecules lose kinetic energy")
+	@DoubleValue(min = 0.0, max = 1.0)
+	public static double KINETIC_ENERGY_LOSS_RATE = 0.2;
+
+	@Parameter(key = "molecular_collision_rate", group = "Chemical Reaction Optimization", description = "Rate of inter molecular collisions")
+	@DoubleValue(min = 0.0, max = 1.0)
+	public static double MOLECULAR_COLLISION_RATE = 0.2;
+
+	@Parameter(key = "initial_kinetic_energy", group = "Chemical Reaction Optimization", description = "Initial kinetic energy of each molecule")
+	public static double INITIAL_KINETIC_ENERGY = 1000.0;
+
+	@Parameter(key = "decomposition_threshold", group = "Chemical Reaction Optimization", description = "Threshold to be checked to decide when to trigger decomposition")
+	public static int DECOMPOSITION_THRESHOLD = 500;
+
+	@Parameter(key = "synthesis_threshold", group = "Chemical Reaction Optimization", description = "Threshold to be checked to decide when to trigger synthesis")
+	public static int SYNTHESIS_THRESHOLD = 10;
 
 	//----------------------------------------------------------------
 	// Continuous Test Generation
@@ -1168,6 +1216,14 @@ public class Properties {
 
 	@Parameter(key = "test_factory", description = "Which factory creates tests")
 	public static TestFactory TEST_FACTORY = TestFactory.ARCHIVE;
+
+	public enum ArchiveType {
+		COVERAGE, MIO
+	}
+
+	/** Constant <code>ARCHIVE_TYPE=COVERAGE</code> */
+	@Parameter(key = "archive_type", description = "Which type of archive to keep track of covered goals during search")
+	public static ArchiveType ARCHIVE_TYPE = ArchiveType.COVERAGE;
 
 	@Parameter(key = "seed_file", description = "File storing TestGenerationResult or GeneticAlgorithm")
 	public static String SEED_FILE = "";

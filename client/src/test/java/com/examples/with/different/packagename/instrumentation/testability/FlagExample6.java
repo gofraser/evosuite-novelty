@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2017 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
  * This file is part of EvoSuite.
@@ -17,14 +17,18 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package com.examples.with.different.packagename;
+package com.examples.with.different.packagename.instrumentation.testability;
 
-public class FlagExample2 {
+public class FlagExample6 {
 
-	public void testMe(int x) {
-		boolean flag = x == 23482 || x == 1235;
-		if(flag) {
-			System.out.println("Target");
+	public boolean testMe(int x, int y) {
+		FlagExample5 f = new FlagExample5();
+
+		if(f.testMe(x, y)) {
+			return true;
+		} else {
+			return false;
 		}
 	}
+
 }
