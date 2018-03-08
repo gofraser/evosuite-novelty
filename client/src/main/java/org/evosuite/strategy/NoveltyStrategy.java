@@ -96,6 +96,10 @@ public class NoveltyStrategy extends TestGenerationStrategy {
 
             algorithm.generateSolution();
             testSuite = Archive.getArchiveInstance().mergeArchiveAndSolution(new TestSuiteChromosome());
+            for (FitnessFunction fitnessFunction : fitnessFunctions) {
+                fitnessFunction.getFitness(testSuite);
+            }
+
         } else {
             zeroFitness.setFinished();
             testSuite = new TestSuiteChromosome();

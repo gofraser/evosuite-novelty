@@ -109,8 +109,8 @@ public class PropertiesNoveltySearchFactory extends PropertiesSearchAlgorithmFac
 
         NoveltySearch<TestChromosome> ga = new NoveltySearch<>(factory);
 
-        if (Properties.NEW_STATISTICS)
-            ga.addListener(new StatisticsListener());
+//        if (Properties.NEW_STATISTICS)
+//            ga.addListener(new StatisticsListener());
 
         // How to select candidates for reproduction
         SelectionFunction<TestChromosome> selectionFunction = getSelectionFunction();
