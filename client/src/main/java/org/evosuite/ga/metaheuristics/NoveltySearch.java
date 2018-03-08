@@ -153,7 +153,7 @@ public class NoveltySearch<T extends Chromosome> extends GeneticAlgorithm<T> {
         }
         logger.info("Novelty search finished");
 
-        updateBestIndividualFromArchive();
+        // updateBestIndividualFromArchive();
         notifySearchFinished();
 
     }
